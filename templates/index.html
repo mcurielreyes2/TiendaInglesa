@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urufarma: Asistente especializado energía y HVAC</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <img src="https://static.wixstatic.com/media/978c91_1c1911b9d26d4f888da1d423cab1298b~mv2.png/v1/fill/w_126,h_59,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Logo-MCT-Color.png" alt="Logo" class="logo">
+        </div>
+
+        <div class="welcome-message">
+            <p>Bienvenido al asistente de Urufarma en <strong>Energía y HVAC</strong>. Pregúntame cualquier cosa sobre este tema para comenzar.</p>
+        </div>
+
+        <div class="options-wrapper">
+          <div class="options-container coffee-options">
+              <div class="option-box">¿Cual fue el consumo de energía eléctrica de Urufarma en los últimos 12 meses? </div>
+              <div class="option-box">Descripción de la instalación de HVAC de Urufarma en la zona P6 del laboratorio</div>
+              <div class="option-box">Detalle de los metros cuadrados de cada edificio de Urufarma</div>
+              <div class="option-box">Resumen de los KPI  de energía de Urufarma en los últimos 12 meses por edificio</div>
+              <div class="option-box">¿Cual fue el costo de energía eléctrica de Urufarma en los últimos 12 meses?</div>
+          </div>
+{#          <div class="options-container osma-option">#}
+{#              <div class="option-box osma">Exploración de datos con OSMA</div>#}
+{#          </div>#}
+        </div>
+        <div id="chat-box"></div>
+        <!-- Contenedor (vacío) donde reinsertaremos los conversation starters -->
+        <div id="conversation-starters-bottom"></div>
+        <div class="chat-input-container">
+            <button id="feedback-button">Feedback</button>
+            <button id="erase-button" onclick="eraseLastAndStop()">Borrar</button>
+            <input type="text" id="user-input" placeholder="Escribe tu mensaje aquí...">
+            <button id="send-button">Enviar</button>
+        </div>
+    </div>
+
+        <!-- Cuadro modal para Feedback (invisible al inicio) -->
+    <div id="feedback-modal" class="feedback-modal">
+      <div class="feedback-modal-content">
+        <h2>Feedback</h2>
+        <p>
+          Por favor, informe sobre todas las respuestas incorrectas o inexactas del asistente.
+          Describa cuál es el problema y cómo esperaba que el asistente respondiera.
+          ¡También se agradecen los comentarios positivos!
+        </p>
+        <textarea id="feedback-text" placeholder="Describa la situación aquí..."></textarea>
+        <div class="feedback-modal-buttons">
+          <button id="close-feedback">Cerrar</button>
+          <button id="submit-feedback">Enviar reporte</button>
+        </div>
+      </div>
+    </div>
+
+        <!-- Thumbs Down Modal (initially hidden via CSS) -->
+    <div id="thumbs-down-modal" class="thumbs-down-modal" style="display: none;">
+      <div class="modal-content">
+        <h3>¿Por qué consideras que la respuesta no fue útil?</h3>
+        <textarea id="thumbs-down-reason" rows="4" placeholder="Explica brevemente..."></textarea>
+        <div class="modal-buttons">
+          <button id="cancel-thumbs-down">Cancelar</button>
+          <button id="submit-thumbs-down">Enviar</button>
+        </div>
+      </div>
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+
+<script>
+  // Configure MathJax to parse the usual \( ... \) and \[ ... \] delimiters
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [
+      ['\\[', '\\]'],   // mantiene el delimitador \[...\]
+    ]
+  }
+};
+</script>
+<script
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"
+  id="MathJax-script"
+  async
+></script>
+
+
+
+</body>
+</html>
+

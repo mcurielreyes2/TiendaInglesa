@@ -1,0 +1,11 @@
+openai
+gunicorn
+groundx
+flask
+psycopg2-binary
+python-dotenv
+rapidfuzz
+babel
+langchain-core
+langchain-openai
+langsmith
