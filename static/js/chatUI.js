@@ -10,7 +10,7 @@ export function initChatUI() {
   const chatBox = document.getElementById("chat-box");
   const welcomeMessage = document.createElement("div");
   welcomeMessage.className = "assistant-message";
-  welcomeMessage.innerText = "Hola, soy un asistente especializado en el sistema de HVAC de P6 de Urufarma, ¿En qué puedo ayudarte?";
+  welcomeMessage.innerText = "Hola, soy un asistente especializado contratos de fideicomisos financieros de Campiglia, ¿En qué puedo ayudarte?";
   chatBox.appendChild(welcomeMessage);
   chatBox.scrollTop = chatBox.scrollHeight;
 }

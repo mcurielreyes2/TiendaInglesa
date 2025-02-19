@@ -71,12 +71,12 @@ class RAGService:
         lower_query = query.lower()
         for kw in self.coffee_keywords:
             if kw in lower_query:
-                logger.info(f"Found keyword '{kw}' => definitely about Urufarma.")
+                logger.info(f"Found keyword '{kw}' => definitely about Campiglia.")
                 return True
 
         classification_prompt = f"""
         Eres un clasificador de textos. Tu te encargas de definir si la consulta realizada por el usuario es relevante para el contexto para el que este programa fue diseñado. 
-        Dada la consulta del usuario, estima la probabilidad (0-100) de que la consulta sea sobre HVAC, eficiencia energética, la empresa Urufarma o una temática relacionada.
+        Dada la consulta del usuario, estima la probabilidad (0-100) de que la consulta sea sobre Contratos de fideicomisos financieros, la empresa Campiglia o una temática relacionada.
         Devuelve SOLO un número del 0 al 100 (un entero). Sin texto adicional.
         User query: {query}
         """

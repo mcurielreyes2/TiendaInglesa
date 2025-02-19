@@ -25,11 +25,9 @@ usuario = os.getenv("USUARIO")
 
 # Setup Langsmith
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 os.environ["LANGCHAIN_API_KEY"] = ""
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
-os.environ["LANGCHAIN_PROJECT"] = "Urufarma"
+os.environ["LANGCHAIN_PROJECT"] = company
 LANGSMITH_ENDPOINT = "https://api.smith.langchain.com"
 
 # Instructions parser

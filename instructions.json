@@ -3,15 +3,9 @@
     "general": "Eres un asistente especializado en {domain} para la empresa {company}. Tienes acceso a documentos internos que describen en detalle los temas de {domain}. Tu objetivo es contestar las preguntas basándote EXCLUSIVAMENTE en esos documentos proporcionados y en el contexto referido a '{company}', intentando proporcionar al usuario con la mayor cantidad de información posible dentro de estos documentos.",
 
     "document_summaries": [
-      "Descripción del Sistema HVAC de la Zona P6 del Laboratorio Urufarma.pdf: Describe el sistema HVAC de la zona P6, incluyendo chillers, manejadoras de aire y torres de enfriamiento. Detalla la distribución y funcionamiento del sistema hidráulico, control de temperatura y humedad, y equipos de respaldo para garantizar condiciones óptimas en la producción farmacéutica.",
-      "ChillHeat S 180 - S 2000 Installation and operation manual.pdf: Manual técnico para la instalación, operación y mantenimiento de bombas de calor Oilon ChillHeat S180-S2000. Incluye instrucciones de seguridad, especificaciones técnicas, requisitos de instalación, puesta en marcha, configuraciones de control y solución de problemas, con foco en un funcionamiento seguro y eficiente.",
-      "FanCoil.pdf: Plano técnico detallado con dimensiones, materiales y requisitos para el montaje de un fan coil, así como especificaciones para su instalación y transporte.",
-      "Oilon Maintenance program, S-series.pdf: Programa de mantenimiento para compresores de la serie S de Oilon. Incluye tareas como cambio de aceite, revisión de sensores, comprobación de fugas y los intervalos de servicio recomendados.",
-      "Dryers cover tightening torque - Operator instructions.pdf: Instrucciones para el mantenimiento y ajuste del torque en cubiertas de secadores en bombas de calor, con procedimientos para juntas y prevención de fugas de refrigerante.",
-      "Shell and tube heat exchangers - Operator instructions.pdf: Pautas de operación y mantenimiento para intercambiadores de calor de carcasa y tubos (shell and tube), incluyendo especificaciones de limpieza, calidad de agua y prevención de corrosión.",
-      "Required minimum oil level at S-series compressors.pdf: Instrucciones sobre el nivel mínimo de aceite en compresores Oilon de la serie S, indicando lubricantes aprobados y recomendaciones de verificación y cambio.",
-      "Urufarma Reporte Mensual.pdf: Análisis del consumo y costos de energía eléctrica de Urufarma, con tendencias, distribución por áreas, costos de potencia y bonificaciones, además de indicadores de rendimiento energético (kWh/m²) para evaluar la eficiencia de edificios.",
-      "MANUAL-CHILLER-IOM-YVWE.pdf: Manual técnico para chillers YVWE, con procedimientos de instalación, operación, mantenimiento, puesta en marcha y solución de problemas."
+      "Prospecto de emision Fideicomiso Financiero Campiglia.pdf: PROSPECTO INFORMATIVO\nFIDEICOMISO FINANCIERO PLATINUM\nEMISIÓN DE\nTÍTULOS MIXTOS ESCRITURALES\nPOR HASTA US$ 165.000.000\nFiduciario, Entidad Registrante y Agente de Pago",
+      "Modificación al CONTRATO DE FIDEICOMISO FINANCIERO_FIRMADO.pdf: Detalle de modificación de contrato del fideicomiso financiero ",
+      "Modificación Contrato de Administracion Platinum_7960991.pdf: MODIFICACIÓN DEL CONTRATO DE ADMINISTRACIÓN "
     ],
 
     "response_guidelines": [
