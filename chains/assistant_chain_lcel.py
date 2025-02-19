@@ -123,17 +123,19 @@ def merge_rag_fn(inputs: dict) -> dict:
     span_score = 0
     eng_score = 0
 
-    for res in spanish_results:
-        score = res.score
-        if score >= 150:
-            span_score += score
-            combined_list.append(("ES", score, res))
+    if spanish_results:  # This will skip the for-loop if spanish_results is None or empty
+        for res in spanish_results:
+            score = res.score
+            if score >= 150:
+                span_score += score
+                combined_list.append(("ES", score, res))
 
-    for res in english_results:
-        score = res.score
-        if score >= 150:
-            eng_score += score
-            combined_list.append(("EN", score, res))
+    if english_results:
+        for res in english_results:
+            score = res.score
+            if score >= 150:
+                eng_score += score
+                combined_list.append(("EN", score, res))
 
     combined_list.sort(key=lambda x: x[1], reverse=True)
 

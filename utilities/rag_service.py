@@ -97,7 +97,7 @@ class RAGService:
             probability = 50.0
 
         threshold = 50
-        logger.info(f"Urufarma probability: {probability}% (threshold={threshold})")
+        logger.info(f"Campiglia probability: {probability}% (threshold={threshold})")
         return probability >= threshold
 
     # ------------------------------------------------------------------
