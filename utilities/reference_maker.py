@@ -13,6 +13,7 @@ class ReferenceMaker:
         """
         Initialize the ReferenceMaker.
         """
+        self.empresa = os.getenv("EMPRESA")
         self.docs_directory = docs_directory
         self.threshold = threshold
 
@@ -91,7 +92,7 @@ class ReferenceMaker:
                 info = ref_details[i]
                 matched = info["matched_filename"]
                 if matched:
-                    link = f"/static/docs/{self.encode_filename_for_url(matched)}"
+                    link = f"static/{self.empresa}/docs/{self.encode_filename_for_url(matched)}"
                     references_block += f"<li>[{i}] <a href=\"{link}\" target=\"_blank\">{matched}</a></li>"
             text += references_block
 

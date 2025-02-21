@@ -5,8 +5,9 @@ import time
 import logging
 import openai
 from groundx import GroundX
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
 from utilities.reference_maker import ReferenceMaker
-from langsmith import Client
 
 logger = logging.getLogger(__name__)
 
@@ -18,78 +19,81 @@ class RAGService:
         return cls._instance
 
     def __init__(self):
+        # Singleton check
         if hasattr(self, "_initialized") and self._initialized:
             return
         self._initialized = True
 
+        # 1) Read environment variables
         self.openai_api_key = os.getenv("OPENAI_API_KEY")
         self.groundx_api_key = os.getenv("GROUNDX_API_KEY")
-        self.bucket_id = os.getenv("GROUNDX_BUCKET_ID")
+        self.empresa = os.getenv("EMPRESA", "default_company")
 
-        if not self.openai_api_key or not self.groundx_api_key or not self.bucket_id:
-            try:
-                with open("config.json") as config_file:
-                    config = json.load(config_file)
-                    self.openai_api_key = self.openai_api_key or config.get("OPENAI_API_KEY")
-                    self.groundx_api_key = self.groundx_api_key or config.get("GROUNDX_API_KEY")
-                    self.bucket_id = self.bucket_id or config.get("GROUNDX_BUCKET_ID")
-            except FileNotFoundError:
-                raise ValueError("No API key or bucket ID found in environment variables or config.json.")
+        # 2) Load your brand-specific config.json
+        self.config = self.load_config_json(self.empresa)
 
+        # 3) Buckets & domain
+        self.buckets = self.config.get("buckets", [])
+        self.bucket_id = self.select_bucket_for_query("default_init")  # picks a default from self.buckets
+        self.domain = self.config.get("domain", "domain_not_found")
+        self.keywords = self.config.get("keywords", [])
+
+        # 4) Validate environment keys + chosen bucket
+        if not self.openai_api_key:
+            raise ValueError("OPENAI_API_KEY is missing in environment variables.")
+        if not self.groundx_api_key:
+            raise ValueError("GROUNDX_API_KEY is missing in environment variables.")
         if not self.bucket_id or not str(self.bucket_id).isdigit():
-            raise ValueError("GROUNDX_BUCKET_ID must be a valid integer.")
-        self.bucket_id = int(self.bucket_id)
+            raise ValueError("GROUNDX_BUCKET_ID must be a valid integer. (Check your config's 'buckets' array.)")
 
-        # Initialize GroundX and OpenAI clients
+        # 5) Initialize your chat model
+        self.chat_model = ChatOpenAI(model="gpt-4o-mini",temperature=0.0)
+
+        # 6) Initialize GroundX client & references
         self.groundx = GroundX(api_key=self.groundx_api_key)
         self.client = openai
         self.total_score = 0
 
-        # Load any keywords
-        self.coffee_keywords = self.load_coffee_keywords("kw.txt")
-
-        docs_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "static", "docs")
+        docs_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)),"..","static",self.empresa,"docs" )
         self.reference_maker = ReferenceMaker(docs_directory=docs_directory, threshold=70)
 
-    def load_coffee_keywords(self, filename: str):
-        project_root = os.path.dirname(os.path.abspath(__file__))
-        project_root = os.path.join(project_root, "..")
-        file_path = os.path.join(project_root, filename)
-        keywords = []
-        try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                for line in f:
-                    line = line.strip()
-                    if not line or line.startswith("#"):
-                        continue
-                    keywords.append(line.lower())
-        except FileNotFoundError:
-            logger.warning(f"Could not find {filename}, defaulting to empty keyword list.")
-        return keywords
+        logger.info(f"RAGService initialized for company={self.empresa}, domain={self.domain}, bucket_id={self.bucket_id}")
+
+    def load_config_json(self, company):
+        file_path = os.path.join("config", company, "config.json")
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return data
+
 
     def should_call_groundx(self, query: str) -> bool:
+
         lower_query = query.lower()
-        for kw in self.coffee_keywords:
+        for kw in self.keywords:
             if kw in lower_query:
-                logger.info(f"Found keyword '{kw}' => definitely about Campiglia.")
+                logger.info(f"Found keyword '{kw}' => definitely about {self.empresa} or/and {self.domain}.")
                 return True
 
-        classification_prompt = f"""
-        Eres un clasificador de textos. Tu te encargas de definir si la consulta realizada por el usuario es relevante para el contexto para el que este programa fue diseñado. 
-        Dada la consulta del usuario, estima la probabilidad (0-100) de que la consulta sea sobre Contratos de fideicomisos financieros, la empresa Campiglia o una temática relacionada.
-        Devuelve SOLO un número del 0 al 100 (un entero). Sin texto adicional.
-        User query: {query}
-        """
+        classification_prompt = ChatPromptTemplate([
+            ("system",
+             """Eres un clasificador de textos. Tu labor es definir si la consulta realizada 
+                por el usuario es relevante para el contexto para el que este programa fue diseñado. 
+                Dada la consulta del usuario, estima la probabilidad (0-100) de que la consulta sea 
+                sobre {domain}, la empresa {company} o una temática relacionada.
+                Devuelve SOLO un número del 0 al 100 (un entero). Sin texto adicional."""),
+            ("user", "User query: {query}")
+        ])
 
-        response = self.client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": classification_prompt},
-                {"role": "user", "content": query}
-            ],
-            temperature=0
-        )
-        result_text = response.choices[0].message.content.strip()
+        filled_prompt = classification_prompt.invoke({
+            "domain": self.domain,
+            "company": self.empresa,
+            "query": query
+        })
+
+        #Call the model via LangChain
+        response = self.chat_model.invoke(filled_prompt)
+        result_text = response.content.strip()
+
         try:
             probability = float(result_text)
         except ValueError:
@@ -97,7 +101,7 @@ class RAGService:
             probability = 50.0
 
         threshold = 50
-        logger.info(f"Campiglia probability: {probability}% (threshold={threshold})")
+        logger.info(f"{self.empresa} and/or {self.domain} probability: {probability}% (threshold={threshold})")
         return probability >= threshold
 
     # ------------------------------------------------------------------
@@ -132,6 +136,34 @@ class RAGService:
         dt = time.time() - t0
         logger.info(f"English search took {dt:.3f}s for query='{query_english}'")
         return content_response_en.search.results
+
+    # ------------------------------------------------------------------
+    # Bucket ID selection
+    # ------------------------------------------------------------------
+
+    def select_bucket_for_query(self, query: str) -> str:
+        """
+        For now, we only have one bucket, so we just return that.
+        In the future, you can add logic to pick from self.buckets
+        based on the user's query or domain classification.
+
+        """
+        if not self.buckets:
+            logger.warning("No buckets defined in config. Defaulting to 'BUCKET_ID_MISSING'")
+            return "BUCKET_ID_MISSING"
+
+        # If you only have one bucket:
+        if len(self.buckets) == 1:
+            chosen = self.buckets[0]
+            logger.info(f"Only one bucket available. Using bucket_id={chosen['bucket_id']}")
+            return chosen["bucket_id"]
+
+        # Fallback if multiple are found but no logic implemented:
+        default_choice = self.buckets[0]
+        logger.info(f"Multiple buckets present. Defaulting to first: {default_choice['bucket_id']}")
+        return default_choice["bucket_id"]
+
+
 
     # ------------------------------------------------------------------
     # Translation

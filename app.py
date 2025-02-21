@@ -4,7 +4,7 @@ import json
 import logging
 import uuid
 
-from flask import Flask, request, jsonify, render_template, Response, stream_with_context
+from flask import Flask, request, jsonify, render_template, Response, stream_with_context, session
 from flask_migrate import Migrate
 from dotenv import load_dotenv
 
@@ -12,19 +12,40 @@ from langsmith import Client
 from langchain_core.tracers.context import collect_runs
 from langchain_core.tracers.langchain import wait_for_all_tracers
 
+# Build absolute paths for flask
+base_dir = os.path.abspath(os.path.dirname(__file__))
+template_dir = os.path.join(base_dir, "static", "templates")
+static_dir = os.path.join(base_dir, "static")
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s - %(message)s"
+)
+
+# Load environment variables
+load_dotenv()
+company = os.getenv("EMPRESA", "Mi Empresa")
+usuario = os.getenv("USUARIO")
+secret_key = os.getenv("SECRET_KEY")
+
+app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
+app.secret_key = secret_key
+app.logger.setLevel(logging.INFO)
+
+# Optionally, also configure Flask's app.logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
 # Import your new streaming helper from assistant_chain_lcel
 from chains.assistant_chain_lcel import run_chain_stream, post_process_fn
 from utilities.rag_service import RAGService
 from utilities.instruction_parser import InstructionParser
 
-# Load environment variables
-load_dotenv()
-company = os.getenv("EMPRESA")
-domain = os.getenv("DOMINIO")
-usuario = os.getenv("USUARIO")
+logger.info(f"static_folder = {app.static_folder}")
+logger.info(f"static_url_path = {app.static_url_path}")
 
 # Setup Langsmith
-app = Flask(__name__)
 os.environ["LANGCHAIN_API_KEY"] = ""
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
 os.environ["LANGCHAIN_PROJECT"] = company
@@ -33,24 +54,14 @@ LANGSMITH_ENDPOINT = "https://api.smith.langchain.com"
 # Instructions parser
 instruction_parser = InstructionParser("instructions.json")
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s - %(message)s"
-)
-
-# Optionally, also configure Flask's app.logger
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-app.logger.setLevel(logging.INFO)
-
 # Initialize components:
 rag_service = RAGService()
+domain = rag_service.domain
 
 @app.route("/", methods=["GET"])
 def home():
     """Serve the main HTML page."""
-    return render_template("index.html")
+    return render_template("index.html", company=company, domain=domain)
 
 
 @app.route("/feedback", methods=["POST"])
@@ -90,6 +101,9 @@ def check_rag():
     data = request.get_json()
     user_message = data.get("message", "")
     rag_used = rag_service.should_call_groundx(user_message)
+    # Store the result in session
+    session["rag_decision"] = rag_used
+    session["cached_message"] = user_message
     return jsonify({"is_rag": rag_used})
 
 #NEW THUMB FEEDBACK
@@ -150,6 +164,15 @@ def chat_stream():
         "domain": os.getenv("DOMINIO"),
 
      }
+
+    # Check if we have a cached RAG classification for this same user_message
+    if session.get("cached_message") == user_message:
+        # Reuse the same rag decision
+        chain_input["already_classified"] = True
+        chain_input["rag_decision"] = session.get("rag_decision", False)
+    else:
+        # fallback: no match or no classification stored
+        chain_input["already_classified"] = False
 
     logger.info(chain_input['query'])
 

@@ -146,7 +146,7 @@ body {
     background-color: #f9f9f9;
 }
 
-#feedback-button, #erase-button {
+#erase-button {
     margin-right: 10px;
     background-color: #f0f0f0;
     border: none;
@@ -158,7 +158,7 @@ body {
     transition: background-color 0.3s;
 }
 
-#feedback-button:hover, #erase-button:hover {
+#erase-button:hover {
     background-color: #e0e0e0;
 }
 
@@ -194,7 +194,7 @@ body {
         flex-wrap: wrap;
         gap: 10px;
     }
-    #feedback-button, #erase-button {
+    #erase-button {
         flex: 1;
         text-align: center;
     }
@@ -231,7 +231,6 @@ body {
         flex-wrap: wrap;
         gap: 10px;
     }
-    #feedback-button,
     #erase-button,
     #send-button {
         flex: 1;
@@ -245,46 +244,8 @@ body {
     }
 }
 
-/* Modal overlay (Feedback) */
-.feedback-modal {
-    display: none;
-    position: fixed;
-    z-index: 999;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.5);
-}
 
-/* Contenedor interno del modal: centrado */
-.feedback-modal-content {
-    background-color: #fff;
-    margin: 10% auto;
-    padding: 20px;
-    border-radius: 8px;
-    width: 80%;
-    max-width: 600px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
 
-/* Estilos del textarea y botones dentro del modal */
-#feedback-text {
-    width: 100%;
-    height: 100px;
-    margin: 10px 0;
-    resize: vertical;
-    padding: 8px;
-    font-size: 14px;
-    box-sizing: border-box;
-}
-
-.feedback-modal-buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
 
 /* Rag status background animation */
 /* Subtle pulse background animation for status text */

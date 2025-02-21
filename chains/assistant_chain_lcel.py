@@ -175,11 +175,19 @@ rag_parallel_merge = rag_parallel | merge_rag_runnable
 # F) Condition: if should_call_groundx is false, skip parallel
 def conditional_rag_fn(inputs: dict) -> dict:
     query = inputs["query"]
-    if rag_service.should_call_groundx(query):
+
+    # Check if we already classified in /check_rag
+    if inputs.get("already_classified"):
+        # Skip calling the LLM again.
+        do_rag = inputs["rag_decision"]
+    else:
+        # No classification cached, do the standard check
+        do_rag = rag_service.should_call_groundx(query)
+
+    if do_rag:
         # parallel approach
         return rag_parallel_merge.invoke(inputs)
     else:
-        # fallback
         rag_service.total_score = 0
         inputs["context"] = (
             "No documents retrieved for this question. "
@@ -241,7 +249,6 @@ final_prompt_generator = RunnableLambda(final_prompt_generator_fn)
 # ------------------------------------------------------------------
 # 4) The LLM call (streaming chat model)
 # ------------------------------------------------------------------
-from langchain_openai import ChatOpenAI
 chat_model = ChatOpenAI(model="gpt-4o-mini", temperature=0.5, streaming=True, stream_usage=True)
 
 # ------------------------------------------------------------------
