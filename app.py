@@ -51,12 +51,14 @@ os.environ["LANGCHAIN_TRACING_V2"] = "true"
 os.environ["LANGCHAIN_PROJECT"] = company
 LANGSMITH_ENDPOINT = "https://api.smith.langchain.com"
 
-# Instructions parser
-instruction_parser = InstructionParser("instructions.json")
-
 # Initialize components:
 rag_service = RAGService()
 domain = rag_service.domain
+
+# Instructions parser
+instruction_parser = InstructionParser("instructions.json")
+
+
 
 @app.route("/", methods=["GET"])
 def home():
@@ -161,7 +163,7 @@ def chat_stream():
         "query": user_message,
         "system_prompt": system_prompt,
         "company": os.getenv("EMPRESA"),
-        "domain": os.getenv("DOMINIO"),
+        "domain": rag_service.domain,
 
      }
 
