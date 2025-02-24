@@ -15,27 +15,19 @@ from langsmith import Client
 from langsmith.run_trees import RunTree
 
 # For memory and summarization
-from utilities.memory_utils import get_session_history, summarizer_lcel
+from utilities.memory_utils import get_session_history
 
 # Import your existing services and utilities.
 from utilities.rag_service import RAGService
 from utilities.reference_maker import ReferenceMaker
-from utilities.instruction_parser import InstructionParser
 
 # ------------------------------------------------------------------
 # Logging and environment setup
 # ------------------------------------------------------------------
 logger = logging.getLogger(__name__)
-load_dotenv()
 
 # Assume rag_service is already initialized (e.g., in your app code)
 rag_service = RAGService()
-
-# Setup Langsmith
-os.environ["LANGCHAIN_API_KEY"] = ""
-os.environ["LANGCHAIN_TRACING_V2"] = "true"
-os.environ["LANGCHAIN_PROJECT"] = "Urufarma"
-LANGSMITH_ENDPOINT = "https://api.smith.langchain.com"
 
 # ------------------------------------------------------------------
 # 1) Define the new “Parallel RAG” approach
@@ -254,7 +246,6 @@ chat_model = ChatOpenAI(model="gpt-4o-mini", temperature=0.5, streaming=True, st
 # ------------------------------------------------------------------
 # 5) Post-processor
 # ------------------------------------------------------------------
-from utilities.reference_maker import ReferenceMaker
 
 def post_process_fn(answer: str) -> str:
     processed = rag_service.process_references_in_text(answer)
@@ -279,8 +270,6 @@ assistant_chain_lcel_core = (
 # ------------------------------------------------------------------
 # 7) Wrap the pipeline with memory
 # ------------------------------------------------------------------
-from utilities.memory_utils import get_session_history
-
 assistant_chain_lcel = RunnableWithMessageHistory(
     runnable=assistant_chain_lcel_core,
     get_session_history=get_session_history,
