@@ -25,7 +25,7 @@ class InstructionParser:
             instr = data["instruction"]
 
             general = instr["general"]
-            documents = instr["document_summaries"]
+            # documents = instr["document_summaries"]
 
             response_guidelines = "\n".join(instr["response_guidelines"])
             prioritization = instr["prioritization"]
@@ -39,7 +39,7 @@ class InstructionParser:
                 f"Prioritization:\n{prioritization}\n\n"
                 f"Examples:\n{examples}\n\n"
                 f"Fallback:\n{fallback}\n"
-                f"Documents:\n{documents}\n"
+                # f"Documents:\n{documents}\n"
             )
 
             # Create a ChatPromptTemplate (which produces a ChatPromptValue with a system message)

@@ -241,7 +241,7 @@ final_prompt_generator = RunnableLambda(final_prompt_generator_fn)
 # ------------------------------------------------------------------
 # 4) The LLM call (streaming chat model)
 # ------------------------------------------------------------------
-chat_model = ChatOpenAI(model="gpt-4o-mini", temperature=0.5, streaming=True, stream_usage=True)
+chat_model = ChatOpenAI(model="o3-mini-2025-01-31", streaming=True, stream_usage=True)
 
 # ------------------------------------------------------------------
 # 5) Post-processor
